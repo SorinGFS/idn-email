@@ -6,7 +6,7 @@ const  cpHex = (cp) => `char '${String.fromCodePoint(cp)}' ` + JSON.stringify('(
 // main validator
 const isIdnEmail = (string) => {
     // basic hostname checks
-    if (typeof string !== 'string') new SyntaxError('email must be a string. (RFC 5321 §4.5.3.1.2)');
+    if (typeof string !== 'string') throw new SyntaxError('email must be a string. (RFC 5321 §4.5.3.1.2)');
     if (new TextEncoder().encode(string).length > 255) throw new SyntaxError('invalid email larger than 255 bytes. (RFC 5321 §4.5.3.1.2)');
     const index = string.lastIndexOf('@');
     if (index === -1) throw new SyntaxError(`invalid email not having a '@'. (RFC 5322 §3.2)`);
