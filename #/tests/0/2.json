@@ -1,0 +1,5 @@
+{
+    "description": "valid IDN email with alphanumeric in local and domain",
+    "data": "user@example.com",
+    "valid": true
+}

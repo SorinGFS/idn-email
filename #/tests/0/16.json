@@ -1,0 +1,5 @@
+{
+    "description": "invalid IDN email with missing @ symbol",
+    "data": "user例子.测试",
+    "valid": false
+}

@@ -1,0 +1,5 @@
+{
+    "description": "invalid IDN email with a quoted username that has an \\\" in the middle",
+    "data": "\"foo\"bar\"@mail.com",
+    "valid": false
+}

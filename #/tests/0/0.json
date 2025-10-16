@@ -1,0 +1,5 @@
+{
+    "description": "valid IDN email with Unicode in local part",
+    "data": "用户@example.com",
+    "valid": true
+}

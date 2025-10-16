@@ -1,0 +1,5 @@
+{
+    "description": "ivalid IDN email with a properly paired quotes that are not enclosing the username",
+    "data": "\"\"john@mail.com",
+    "valid": false
+}

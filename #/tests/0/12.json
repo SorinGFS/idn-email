@@ -1,0 +1,5 @@
+{
+    "description": "invalid IDN email with ending dot in local part",
+    "data": "username.@例子.测试",
+    "valid": false
+}

@@ -1,0 +1,4 @@
+{
+    "description": "An internationalized email address defined as Mailbox in [RFC6531, Section 3.3](https://www.rfc-editor.org/rfc/rfc6531#section-3.3)",
+    "$ref": "#/#/#/#/idn-email"
+}

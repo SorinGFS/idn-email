@@ -1,0 +1,5 @@
+{
+    "description": "valid IDN email in greek in local and domain",
+    "data": "θσερ@εχαμπλε.ψομ",
+    "valid": true
+}

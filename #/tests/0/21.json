@@ -1,0 +1,5 @@
+{
+    "description": "invalid IDN email with more than 64 characters in local part",
+    "data": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@example.com",
+    "valid": false
+}

@@ -1,0 +1,5 @@
+{
+    "description": "valid IDN email with a domain of one character",
+    "data": "user@x.com",
+    "valid": true
+}

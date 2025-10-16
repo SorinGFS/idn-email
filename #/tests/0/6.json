@@ -1,0 +1,5 @@
+{
+    "description": "valid IDN email with a long local part (64 chars)",
+    "data": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@example.com",
+    "valid": true
+}

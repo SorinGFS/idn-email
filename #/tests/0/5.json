@@ -1,0 +1,5 @@
+{
+    "description": "valid IDN email in russian in local and domain",
+    "data": "почта@пример.рус",
+    "valid": true
+}

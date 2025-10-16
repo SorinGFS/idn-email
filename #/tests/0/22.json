@@ -1,0 +1,5 @@
+{
+    "description": "invalid IDN email with more than 63 characters in domain segment",
+    "data": "user@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com",
+    "valid": false
+}

@@ -1,0 +1,28 @@
+{
+  "name": "idn-email",
+  "version": "15.1.0",
+  "description": "An internationalized email address validator as defined as Mailbox in RFC6531",
+  "keywords": [
+    "idn-email",
+    "idna",
+    "validation"
+  ],
+  "homepage": "https://github.com/SorinGFS/idn-email#readme",
+  "bugs": {
+    "url": "https://github.com/SorinGFS/idn-email/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SorinGFS/idn-email.git"
+  },
+  "license": "MIT",
+  "author": "SorinGFS",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "idn-hostname": "^15.1.0"
+  }
+}

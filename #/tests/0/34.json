@@ -1,0 +1,5 @@
+{
+    "description": "valid IDN email in japanesse",
+    "data": "tユーザー@例え.テスト",
+    "valid": true
+}

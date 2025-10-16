@@ -1,0 +1,5 @@
+{
+    "description": "valid IDN email with Unicode in domain",
+    "data": "user@例子.测试",
+    "valid": true
+}

@@ -1,0 +1,5 @@
+{
+    "description": "invalid IDN email with no TLD",
+    "data": "用户@例子.",
+    "valid": false
+}

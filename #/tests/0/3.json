@@ -1,0 +1,5 @@
+{
+    "description": "valid IDN email in Devanagari",
+    "data": "उपयोगकर्ता@उदाहरण.कॉम",
+    "valid": true
+}
