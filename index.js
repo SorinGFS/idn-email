@@ -8,10 +8,11 @@ const isIdnEmail = (string) => {
     // basic hostname checks
     if (typeof string !== 'string') throw new SyntaxError('email must be a string. (RFC 5321 §4.5.3.1.2)');
     if (new TextEncoder().encode(string).length > 255) throw new SyntaxError('invalid email larger than 255 bytes. (RFC 5321 §4.5.3.1.2)');
-    const index = string.lastIndexOf('@');
+    const chars = Array.from(string);
+    const index = chars.lastIndexOf('@');
     if (index === -1) throw new SyntaxError(`invalid email not having a '@'. (RFC 5322 §3.2)`);
     // local part should be normalized before checking its length (RFC 6532 §3.1)
-    const parts = [string.slice(0, index).normalize('NFC'), string.slice(index + 1)];
+    const parts = [chars.slice(0, index).join('').normalize('NFC'), chars.slice(index + 1).join('')];
     if (new TextEncoder().encode(parts[0]).length > 64) throw new SyntaxError('invalid email with local part larger than 64 bytes. (RFC 5321 § 4.5.3.1.1)');
     if (parts[0] === '') throw new SyntaxError('invalid email with empty local part. (RFC 5322 §3.2)');
     // allow characters for dot-atom and quoted-strings
