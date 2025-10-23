@@ -23,6 +23,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "idn-hostname": "^15.1.4"
+    "idn-hostname": "^15.1.5"
   }
 }
