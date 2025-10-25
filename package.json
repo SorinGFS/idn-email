@@ -1,6 +1,6 @@
 {
   "name": "idn-email",
-  "version": "15.1.5",
+  "version": "15.1.6",
   "description": "An internationalized email address validator as defined as Mailbox in RFC6531",
   "keywords": [
     "idn-email",
