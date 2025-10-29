@@ -1,7 +1,9 @@
 ---
+
 title: IDN Email
 
 description: A validator for Internationalized Email Addresses in conformance with the current standards.
+
 ---
 
 ## Overview
