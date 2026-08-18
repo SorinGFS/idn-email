@@ -1,0 +1,5 @@
+{
+    "description": "valid IDN email with an escaped backslash followed by an escaped quotation mark",
+    "data": "\"foo\\\\\\\"bar\"@mail.com",
+    "valid": true
+}

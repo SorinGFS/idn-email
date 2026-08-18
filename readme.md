@@ -1,148 +1,212 @@
 ---
 
 title: IDN Email
-
-description: A validator for Internationalized Email Addresses in conformance with the current standards.
+description: "A validator for internationalized email addresses with a constrained UTF-8 local-part policy and delegated hostname validation."
 
 ---
 
-## Overview
+# IDN Email
 
-This is a validator for Internationalized Email Addresses in conformance with the current standards (`RFC 5321` - `RFC 5322` - `RFC 6531` - `RFC 6532`) and the current adoption level of Unicode (`UTS#46`) in javascript (`15.1.0`).
+`idn-email` validates internationalized email addresses and converts the hostname of valid input to ASCII Compatible Encoding (ACE). It combines:
 
-**Browser/Engine Support:** Modern browsers (Chrome, Firefox, Safari, Edge) and Node.js (v18+).
+- mailbox syntax and length checks based on [RFC 5321](https://www.rfc-editor.org/rfc/rfc5321) and [RFC 5322](https://www.rfc-editor.org/rfc/rfc5322);
+- internationalized local-part handling based on [RFC 6531](https://www.rfc-editor.org/rfc/rfc6531) and [RFC 6532](https://www.rfc-editor.org/rfc/rfc6532);
+- hostname validation and conversion delegated to [`idn-hostname`](https://github.com/SorinGFS/idn-hostname).
 
-This document explains, in plain terms, what this validator does, which RFC/UTS rules it enforces, what it intentionally **does not** check, and gives some relevant examples.
+RFC 6532 §3.1 says that NFC normalization **SHOULD** be used. This implementation applies NFC normalization to the local part before local-part validation and returns an NFC-normalized local part from `idnEmail`.
 
-The validation process consists in two parts:
+The package is CommonJS. Browser use requires a bundler or runtime that supports CommonJS, `TextEncoder`, and the package dependencies; the package does not declare a browser compatibility guarantee.
 
-1. the validation of the local part (from the start to the latest `@` symbol)
-2. the validation of the hostname part (from the latest `@` symbol to the end)
+## Install
 
-The second part is entirely handled by the [idn-hostname](https://github.com/SorinGFS/idn-hostname) library. Therefore, the following documentation is mainly focused on the first part.
-
-## Usage
-
-**Install:**
-
-```js title="js"
-npm i idn-email
+```sh
+npm install idn-email
 ```
 
-**Import the idn-email validator:**
+## API
 
-```js title="js"
+### Validate an email address
+
+`isIdnEmail(email)` returns `true` or throws a `SyntaxError` at the first detected violation.
+
+```js
 const { isIdnEmail } = require('idn-email');
-// the validator is returning true or detailed error
+
 try {
-    if (isIdnEmail('abc')) console.log(true);
+    isIdnEmail('δοκιμή@mañana.example');
+    console.log('valid');
 } catch (error) {
-    console.log(error.message);
+    console.error(error.name, error.message);
 }
 ```
 
-**Import the idn-email ACE converter:**
+### Convert the hostname to ACE
 
-```js title="js"
+`idnEmail(email)` validates the input, NFC-normalizes its local part, and returns the email address with its hostname converted to ACE by `idn-hostname`.
+
+```js
 const { idnEmail } = require('idn-email');
-// the idnEmail is returning the local part NFC normalized and the hostname part as ACE, or detailed error (it also validates the input)
+
 try {
-    const email = idnEmail('abc');
+    console.log(idnEmail('δοκιμή@mañana.example'));
+    // δοκιμή@xn--maana-pta.example
 } catch (error) {
-    console.log(error.message);
+    console.error(error.name, error.message);
 }
 ```
 
-## Versioning
+## Processing model
 
-Each release will have its `major` and `minor` version identical with the related `unicode` version, and the `minor` version variable. No `major` or `minor` (structural) changes are expected other than a `unicode` version based updated `json` data source.
+The validator processes an address in this order:
 
-## What does (point-by-point)
+1. Require a JavaScript string containing at most 254 UTF-8 octets.
+2. Use the final `@` as the separator, which allows an `@` inside a quoted local part.
+3. Normalize the local part to NFC, as recommended by RFC 6532 §3.1.
+4. Require a non-empty local part containing at most 64 UTF-8 octets.
+5. Apply the package's local-part repertoire and dot-atom or quoted-string checks.
+6. Delegate hostname validation to `idn-hostname`.
+7. When conversion is requested, preserve the NFC-normalized local part and delegate hostname conversion to `idn-hostname`.
 
-1. **Overall:**
-    - checks the input to be a string ≤ 255 octets. (RFC 5321 §4.5.3.1.2)
-    - requires the presence of an `@` symbol in the string. (RFC 5322 §3.2)
-2. **Local part:**
-    - checks the `NFC normalized` local part to be a non-empty string ≤ 64 octets. (RFC 6532 §3.1 and RFC 5322 §3.2)
-    - restricts the local part to start or end with `.` (dot). (RFC 5322 §3.2.3 and §3.4.1)
-    - restricts invalid characters in local part to those allowed in `dot-atom` and `quoted-strings`. Basically all possible characters are allowed at this stage, and restricted later case by case. (RFC 6531 §3.2 / RFC 6532 §3.2 / RFC 5322 §3.2)
-        - `quoted-string` case is tested to start and end with `"` (double quotes) and to have them escaped in between,
-        - `dot-atom` case is tested against special characters that are allowed only in `quoted-string` (`<>[]():;,\"` and space)
-3. **Hostname part:** refer to `idn-hostname` for details.
+Hostname processing behavior is owned and documented by the [`idn-hostname` authoritative source](https://github.com/SorinGFS/idn-hostname).
 
-## What does _not_ support
+## Enforced local-part rules
 
--   The current standards are quite vage regarding `non-ASCII UTF-8` characters allowed in local part. This validator only allows the `[\u200C\u200D\u00B7\u0375\u30FB\u05F3\u05F4\p{L}\p{M}\p{N}]` part of it. This way, except `\u200C\u200D` all of non-printable characters are excluded (they are about 85% of unicode). Along them, all non-ASCII symbols, punctuation, emoji, controls and more others were also excluded. This behaviour was choosen due to the fact that email registrants that are actually allowing those chars in local part are not known. This aspect is open for changes in the future.
--   Obsolete Syntax defined in `RFC 5322 §4`, (like legacy local-part or legacy domain)
--   `FWS`, `CFWS` and `comment` ABNF defined in `RFC 5322`, (folded white spaces, or comment in paranthesis)
--   Limitations of the domain part, refer to `idn-hostname` for details.
+### Length and normalization
+
+- The complete mailbox must contain at most 254 UTF-8 octets so that the enclosing `<` and `>` fit within the 256-octet SMTP path limit. See RFC 5321 §4.5.3.1.3.
+- The NFC-normalized local part must be non-empty and contain at most 64 UTF-8 octets. See RFC 5321 §4.5.3.1.1 and RFC 6532 §3.1.
+- The local part cannot begin or end with U+002E FULL STOP.
+
+### Character repertoire
+
+RFC 6531 extends `atext` and `qtextSMTP` to permit non-ASCII UTF-8. This package intentionally applies a narrower local-part repertoire as an additional policy. After NFC normalization, its initial allowlist is:
+
+```text
+[\t \\!"#$%&'*+/=?^_`{|}~(),:;<>@\[\]\x2D\x2E\u200C\u200D\u00B7\u0375\u30FB\u05F3\u05F4\p{L}\p{M}\p{N}]
+```
+
+The dot-atom and quoted-string checks then narrow that set according to context. Consequently, the package rejects non-ASCII symbols, punctuation outside the listed set, emoji, and control characters other than the listed tab. This restriction is an implementation policy rather than the complete repertoire permitted by RFC 6531.
+
+### Dot-atom and quoted-string forms
+
+- An unquoted local part cannot contain whitespace, `()<>[]:;@\,`, or consecutive dots.
+- A quoted local part must begin and end with U+0022 QUOTATION MARK.
+- A backslash introduces a quoted pair: `\"` represents a literal quotation mark and `\\` represents a literal backslash. Quoted pairs may occur consecutively.
+- An empty quoted local part is rejected, following the corrected SMTP-envelope grammar recorded by [RFC 5321 Erratum 5414](https://www.rfc-editor.org/errata/eid5414) and adopted by the latest [RFC 5321bis draft](https://datatracker.ietf.org/doc/draft-ietf-emailcore-rfc5321bis/).
+- Special characters such as spaces, `@`, `()<>[]:;,`, and consecutive dots are accepted only in the supported quoted-string form.
+- The obsolete syntax productions defined in RFC 5322 §4 are not accepted.
+
+## Hostname handling
+
+The substring after the final `@` is passed to `idn-hostname` for validation and conversion. This package does not redefine the dependency's processing rules, errors, policies, or limitations; consult the [`idn-hostname` documentation](https://github.com/SorinGFS/idn-hostname) as their authoritative source.
+
+## Errors
+
+The API stops at the first fatal violation. Errors produced by this package are ordinary `SyntaxError` objects:
+
+| Condition | Responsibility |
+| --- | --- |
+| Non-string input | Require an email address represented as a JavaScript string |
+| Input larger than 254 UTF-8 octets | Enforce the SMTP mailbox length limit |
+| Missing `@` | Require a local-part/hostname separator |
+| Empty local part | Require local-part content |
+| Local part larger than 64 UTF-8 octets | Enforce the local-part length limit after NFC normalization |
+| Character outside the local-part allowlist | Enforce the package's constrained repertoire |
+| Leading or trailing dot | Enforce local-part dot placement |
+| Malformed quoted local part | Enforce the supported quoted-string form |
+| Forbidden unquoted syntax or consecutive dots | Enforce the supported dot-atom form |
+
+Each message identifies the detected condition and includes an RFC reference when applicable. Errors originating during delegated hostname processing are documented by the [`idn-hostname` authoritative source](https://github.com/SorinGFS/idn-hostname#errors).
+
+## Intentional policy and limitations
+
+- The supported value is a constrained `local-part@hostname` form. Display names, `name-addr`, address literals, and other complete RFC 5322 mailbox productions are not implemented.
+- The local-part repertoire is narrower than the complete non-ASCII repertoire permitted by RFC 6531.
+- Obsolete syntax from RFC 5322 §4 is not supported.
+- `FWS`, `CFWS`, and comment productions from RFC 5322 are not supported.
+- Hostname policies and limitations are owned by the [`idn-hostname` authoritative source](https://github.com/SorinGFS/idn-hostname#intentional-policy-and-limitations).
+- Validation does not determine whether an address exists or whether a mail provider will accept it.
+- No browser compatibility guarantee is declared.
 
 ## Examples
 
-All the following examples are related to the local part only. For domain part specific examples see `idn-hostname`.
+The examples focus on local-part behavior. See [`idn-hostname`](https://github.com/SorinGFS/idn-hostname#examples) for hostname-specific examples.
 
-### PASS examples
+<details>
+<summary><strong>Valid examples</strong></summary>
 
-```yaml title="yaml"
-- email: 'a@b.c'                   # single char dot-atom local part
-- email: 'a.b@c'                   # dot separated dot-atom local part
-- email: 'a-b@c'                   # hyphen-minus in local part
-- email: '123@c'                   # digits in local part
-- email: 'a#$%&*+/=?^_`{|}~@c'     # symbols allowed in dot-atom local part
-- email: '"ab"@c'                  # enquoted string in quoted-string local part
-- email: '"a b"@c'                 # space in quoted-string local part
-- email: '"a..b"@c'                # consecutive dots in quoted-string local part
-- email: '"a    b"@c'              # tab in quoted-string local part
-- email: '"a\"b"@c'                # escaped double-quote in quoted-string local part
-- email: '"<user@mail>"@c'         # @ symbol in quoted-string local part
-- email: '"a<>()[]:;,b"@c'         # extra special characters allowed in quoted-string local part
-- email: 'smörgåsbord@c'           # extended unicode characters (> U+00FF) in local part
-- email: 'مثال@c'                  # extended unicode characters (> U+00FF) in local part
-- email: '́@a'                      # invisible ZWNJ character in local part
+```js
+[
+    'a@b.c',                    // single-character dot-atom local part
+    'a.b@c',                    // dot-separated dot-atom local part
+    'a-b@c',                    // hyphen-minus in local part
+    '123@c',                    // digits in local part
+    'a#$%&*+/=?^_`{|}~@c',      // symbols allowed in dot-atom local part
+    '"ab"@c',                   // quoted-string local part
+    '"a b"@c',                  // space in quoted-string local part
+    '"a    b"@c',               // repeated spaces in quoted-string local part
+    '"a..b"@c',                 // consecutive dots in quoted-string local part
+    '"a\tb"@c',                 // tab in quoted-string local part
+    '"a\\"b"@c',                // escaped quotation mark
+    String.raw`"foo\\bar"@mail.com`,   // escaped literal backslash
+    String.raw`"foo\\\"bar"@mail.com`, // literal backslash followed by escaped quotation mark
+    '"<user@mail>"@c',          // @ inside a quoted local part
+    '"a<>()[]:;,b"@c',          // quoted-string special characters
+    'smörgåsbord@c',            // non-ASCII Latin letters
+    'مثال@c',                   // non-ASCII Arabic letters
+    '\u0301@a',                 // U+0301 COMBINING ACUTE ACCENT
+    '\u200C@a',                 // U+200C ZERO WIDTH NON-JOINER (ZWNJ)
+]
 ```
 
-### FAIL examples
+</details>
 
-```yaml title="yaml"
-- email: ''                        # empty email
-- email: '@a'                      # empty local part
-- email: '.a@b'                    # local part starting with dot
-- email: 'a.@b'                    # local part ending with dot
-- email: 'a b@c'                   # space in dot-atom local part
-- email: 'ab @c'                   # space in dot-atom local part
-- email: 'a\b@c'                   # backslash in dot-atom local part
-- email: 'a<>()[]:;,b@c'           # special characters in dot-atom local part
-- email: 'a"b@c'                   # double-quotes in dot-atom local part
-- email: '""@a'                    # empty enquoted local part
-- email: 'a"b"@c'                  # wrongfully enquoted local part
-- email: '"a"b@c'                  # wrongfully enquoted local part
-- email: '😀@a'                    # empji in local part
-- email: "a\x01@b"                 # ASCII control character in local part
-- email: "a\u{10FFFF}@b"           # non-printable character in local part
+<details>
+<summary><strong>Invalid examples</strong></summary>
+
+```js
+[
+    '',                         // empty email
+    '@a',                       // empty local part
+    '.a@b',                     // local part begins with a dot
+    'a.@b',                     // local part ends with a dot
+    'a b@c',                    // space in dot-atom local part
+    'ab @c',                    // trailing space in dot-atom local part
+    'a\\b@c',                    // backslash in dot-atom local part
+    'a<>()[]:;,b@c',            // quoted-string-only special characters
+    'a"b@c',                    // quotation mark in dot-atom local part
+    '""@a',                     // empty quoted local part is rejected by the corrected SMTP grammar
+    'a"b"@c',                   // quoted-string delimiters are misplaced
+    '"a"b@c',                   // content follows the closing quotation mark
+    String.raw`"foo\\"bar"@mail.com`, // escaped backslash followed by an unescaped quotation mark
+    '😀@a',                     // emoji is outside the package repertoire
+    'a\x01@b',                  // ASCII control character
+    'a\u{10FFFF}@b',            // non-printable code point
+]
 ```
 
-:::note
+Some examples contain invisible characters. Keep the source encoding and escapes intact when copying them.
 
-Far from being exhaustive, the examples are illustrative and chosen to demonstrate rule coverage. Also:
+</details>
 
--   some of the characters are invisible,
--   some unicode codepoints that cannot be represented in `yaml` (those having `\uXXXX`) should be considered as `json`.
+## Qualification
 
-:::
+The current implementation passes all 41 package test fixtures in [`#/tests/0`](./%23/tests/0). Hostname processing has an independent qualification process owned and documented by the [`idn-hostname` authoritative source](https://github.com/SorinGFS/idn-hostname#qualification).
 
-**References (specs for local part only)**
+## Versioning
 
--   `RFC 5321` — Simple Mail Transfer Protocol.
--   `RFC 5322` — Internet Message Format.
--   `RFC 6531` — SMTP Extension for Internationalized Email.
--   `RFC 6532` — Internationalized Email Headers.
+The package major and minor version identify the related Unicode version, while the patch component identifies package revisions. `idn-email` does not bundle Unicode data itself; hostname behavior is supplied by its declared `idn-hostname` dependency and documented by that project's authoritative source. Consumers should inspect release notes for behavioral changes rather than assuming that every patch is validation-neutral.
 
-:::info
+## Authoritative references
 
-Links are intentionally not embedded here — use the RFC/UTS numbers to fetch authoritative copies on ietf.org and unicode.org.
-
-:::
+- [RFC 5321 — Simple Mail Transfer Protocol](https://www.rfc-editor.org/rfc/rfc5321)
+- [RFC 5322 — Internet Message Format](https://www.rfc-editor.org/rfc/rfc5322)
+- [RFC 6531 — SMTP Extension for Internationalized Email](https://www.rfc-editor.org/rfc/rfc6531)
+- [RFC 6532 — Internationalized Email Headers](https://www.rfc-editor.org/rfc/rfc6532)
+- [RFC 5321 Erratum 5414 — Non-empty SMTP quoted-string correction](https://www.rfc-editor.org/errata/eid5414)
+- [RFC 5321bis draft — SMTP specification revision](https://datatracker.ietf.org/doc/draft-ietf-emailcore-rfc5321bis/)
+- [`idn-hostname` — authoritative hostname documentation](https://github.com/SorinGFS/idn-hostname)
 
 ## Disclaimer
 
-There should be no expectation that results validated by this validator will be automatically accepted by registrants, they may apply their own additional rules on top of those defined by IDNA or RFC's.
+The examples exercise this package's validation rules; they do not guarantee that an address is registered, deliverable, or accepted by a particular mail provider. Providers may impose additional repertoire, syntax, security, or policy restrictions.
