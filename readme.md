@@ -189,9 +189,31 @@ Some examples contain invisible characters. Keep the source encoding and escapes
 
 </details>
 
-## Qualification
+## Tests
 
-The current implementation passes all 41 package test fixtures in [`#/tests/0`](./%23/tests/0). Hostname processing has an independent qualification process owned and documented by the [`idn-hostname` authoritative source](https://github.com/SorinGFS/idn-hostname#qualification).
+The current implementation passes all 41 package test fixtures. Hostname processing has an independent qualification process owned and documented by the [`idn-hostname` authoritative source](https://github.com/SorinGFS/idn-hostname#tests).
+
+<details>
+<summary><strong>Tests</strong></summary>
+
+The package test fixtures are maintained separately as public workspace data, so they are not included in the package or canonical repository. Users and contributors who need them can materialize them into a cloned repository with [gh-workspace-data](https://github.com/SorinGFS/gh-workspace-data).
+
+Install the GitHub CLI extension once:
+
+```sh
+gh extension install SorinGFS/gh-workspace-data
+```
+
+Then run the workspace-data commands from the repository:
+
+```sh
+gh workspace-data init
+gh workspace-data load
+```
+
+The tests are materialized as ordinary local files under `#/public/tests/` and remain excluded from the canonical Git repository.
+
+</details>
 
 ## Versioning
 
