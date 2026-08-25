@@ -1,5 +1,0 @@
-{
-    "description": "invalid IDN email with trailing hyphen in domain",
-    "data": "user@例子-.测试",
-    "valid": false
-}

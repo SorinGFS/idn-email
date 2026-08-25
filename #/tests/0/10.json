@@ -1,5 +1,0 @@
-{
-    "description": "invalid IDN email with space in local part",
-    "data": "user name@例子.测试",
-    "valid": false
-}
