@@ -20,7 +20,7 @@ The package is CommonJS. Browser use requires a bundler or runtime that supports
 ## Install
 
 ```sh
-npm install idn-email@15.1
+npm install idn-email@16
 ```
 
 ## API
@@ -191,7 +191,7 @@ Some examples contain invisible characters. Keep the source encoding and escapes
 
 ## Tests
 
-The current implementation passes all 41 package test fixtures. Hostname processing has an independent qualification process owned and documented by the [`idn-hostname` authoritative source](https://github.com/SorinGFS/idn-hostname#tests).
+The Unicode 16.0 release line passes all 48 applicable package test fixtures: 41 shared fixtures and seven Unicode 16-specific hostname fixtures. Hostname processing has an independent qualification process owned and documented by the [`idn-hostname` authoritative source](https://github.com/SorinGFS/idn-hostname#tests).
 
 <details>
 <summary><strong>Tests</strong></summary>
@@ -225,7 +225,9 @@ This version designation applies to delegated hostname processing. The local-par
 
 When a release changes the hostname Unicode target, its documentation describes compatibility with the preceding release line and identifies any known email addresses accepted by that preceding line that become invalid.
 
-The `15.1.x` release line selects the Unicode 15.1 `idn-hostname` release line. It is the package's first Unicode-versioned release line, so there is no preceding release line to compare.
+The `16.0.x` release line selects the Unicode 16.0 `idn-hostname` release line and follows the `15.1.x` release line, which selects Unicode 15.1. Unicode 16.0 expands the accepted hostname repertoire, but it also corrects the properties of U+1171E AHOM CONSONANT SIGN MEDIAL RA from `Bidi_Class=NSM` and `Joining_Type=T` to `Bidi_Class=L` and `Joining_Type=U`. Email addresses whose hostname validity depends on the earlier properties can therefore become invalid under RFC 5893 bidi or RFC 5892 CONTEXTJ validation.
+
+For example, `"a@\u0627\u{1171E}"` is valid in the 15.1 release line but violates the RTL-label bidi rules in the 16.0 release line. Similarly, `"a@\u0628\u{1171E}\u200C\u0628"` has valid hostname ZWNJ joining context under Unicode 15.1 but invalid joining context under Unicode 16.0.
 
 ## Authoritative references
 
