@@ -20,7 +20,7 @@ The package is CommonJS. Browser use requires a bundler or runtime that supports
 ## Install
 
 ```sh
-npm install idn-email
+npm install idn-email@15.1
 ```
 
 ## API
@@ -217,7 +217,15 @@ The tests are materialized as ordinary local files under `#/public/tests/` and r
 
 ## Versioning
 
-The package major and minor version identify the related Unicode version, while the patch component identifies package revisions. `idn-email` does not bundle Unicode data itself; hostname behavior is supplied by its declared `idn-hostname` dependency and documented by that project's authoritative source. Consumers should inspect release notes for behavioral changes rather than assuming that every patch is validation-neutral.
+The package version identifies the Unicode version targeted for hostname processing through its `idn-hostname` dependency. The major and minor package-version components correspond to the dependency's Unicode major and minor target, while the patch component identifies `idn-email` fixes and revisions that retain the same hostname Unicode target.
+
+Each release selects one `idn-hostname` major and minor release line and does not switch or download hostname data at runtime. That dependency release ships one Unicode table. Runtime compatibility and selection of an appropriate `idn-email` release remain the consumer's responsibility.
+
+This version designation applies to delegated hostname processing. The local-part allowlist uses the JavaScript runtime's Unicode property escapes, so the runtime determines which characters match `\p{L}`, `\p{M}`, and `\p{N}`.
+
+When a release changes the hostname Unicode target, its documentation describes compatibility with the preceding release line and identifies any known email addresses accepted by that preceding line that become invalid.
+
+The `15.1.x` release line selects the Unicode 15.1 `idn-hostname` release line. It is the package's first Unicode-versioned release line, so there is no preceding release line to compare.
 
 ## Authoritative references
 
