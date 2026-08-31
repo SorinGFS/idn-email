@@ -1,6 +1,6 @@
 {
   "name": "idn-email",
-  "version": "16.0.0",
+  "version": "16.0.1",
   "description": "An internationalized email address validator as defined as Mailbox in RFC6531",
   "keywords": [
     "idn-email",
@@ -20,8 +20,13 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node ./#/public/tests",
+    "benchmark": "node ./#/public/benchmarks"
   },
+  "engines": {
+    "node": ">=22.12.0 <23 || >=24.0.0"
+  },
+  "engineStrict": true,
   "dependencies": {
     "idn-hostname": "16.0.x"
   }
