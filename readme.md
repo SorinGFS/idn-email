@@ -189,29 +189,68 @@ Some examples contain invisible characters. Keep the source encoding and escapes
 
 </details>
 
-## Tests
+## Verification
 
-The current implementation passes all 41 package test fixtures. Hostname processing has an independent qualification process owned and documented by the [`idn-hostname` authoritative source](https://github.com/SorinGFS/idn-hostname#tests).
+Tests and benchmarks are maintained in [SorinGFS/public-data](https://github.com/SorinGFS/public-data) rather than in the package or canonical repository. The [gh-workspace-data](https://github.com/SorinGFS/gh-workspace-data) extension materializes those concerns together with the shared `#/version-layers.js` runtime required by both dispatchers.
 
 <details>
-<summary><strong>Tests</strong></summary>
+<summary><strong>gh-workspace-data usage</strong></summary>
 
-The package test fixtures are maintained separately as public workspace data, so they are not included in the package or canonical repository. Users and contributors who need them can materialize them into a cloned repository with [gh-workspace-data](https://github.com/SorinGFS/gh-workspace-data).
-
-Install the GitHub CLI extension once:
+Install and use the extension from a cloned repository:
 
 ```sh
 gh extension install SorinGFS/gh-workspace-data
-```
-
-Then run the workspace-data commands from the repository:
-
-```sh
 gh workspace-data init
 gh workspace-data load
 ```
 
-The tests are materialized as ordinary local files under `#/public/tests/` and remain excluded from the canonical Git repository.
+The extension materializes ordinary local files under `#/public/tests/` and `#/public/benchmarks/`. The generated `#/` namespace remains excluded from the canonical Git repository and npm package.
+
+</details>
+
+### Tests
+
+The Unicode 15.1 release line runs 41 independently reported package fixtures: 41 initial Unicode 15.1 fixtures. Numeric fixtures remain in delta-only version layers and accumulate because `#/public/tests/index.json` marks `isIdnEmail` backwards compatible.
+
+<details>
+<summary><strong>Test details</strong></summary>
+
+Install dependencies and run the complete materialized suite:
+
+```sh
+npm install
+npm test
+```
+
+The package command invokes `node ./#/public/tests`. The generic dispatcher uses Node's built-in `node:test` module, loads the package API once, processes eligible version layers and numbered JSON fixtures deterministically, and requires no external test runner. Every valid fixture must return `true`; every invalid fixture must throw.
+
+Continuous integration runs this suite on Node.js 20.12.0, 22, 24, and 26 across Ubuntu, Windows, and macOS. CI checks out the public test concern and the `gh-workspace-data v0.4.1` version-layer helper explicitly.
+
+</details>
+
+### Benchmarks
+
+The materialized benchmark suite measures isolated package loading and ASCII and internationalized inputs for both `isIdnEmail` and `idnEmail`.
+
+<details>
+<summary><strong>Benchmark details</strong></summary>
+
+Run the standard workload:
+
+```sh
+npm run benchmark
+```
+
+Run a reduced smoke workload or request structured output directly:
+
+```sh
+node ./#/public/benchmarks --quick
+node ./#/public/benchmarks --quick --json
+```
+
+The portable coordinator records five initial calls, warmed minimum, median, 95th-percentile and maximum latency, and integer operations per second. Durations use milliseconds with six decimal places, and headings include representative arguments. The default workload uses 100,000 iterations per sample. Custom iteration counts require direct invocation, for example `node ./#/public/benchmarks --iterations 250000`.
+
+The five results cover package loading, `isIdnEmail("user@example.com")`, `isIdnEmail("δοκιμή@mañana.example")`, `idnEmail("user@example.com")`, and `idnEmail("δοκιμή@mañana.example")`.
 
 </details>
 
@@ -222,6 +261,7 @@ The package version identifies the Unicode version targeted for hostname process
 Each release selects one `idn-hostname` major and minor release line and does not switch or download hostname data at runtime. That dependency release ships one Unicode table. Runtime compatibility and selection of an appropriate `idn-email` release remain the consumer's responsibility.
 
 This version designation applies to delegated hostname processing. The local-part allowlist uses the JavaScript runtime's Unicode property escapes, so the runtime determines which characters match `\p{L}`, `\p{M}`, and `\p{N}`.
+This release declares Node.js `>=20.12.0 <21 || >=22.0.0`. The range matches the Unicode-data requirement of the selected `idn-hostname` line and makes the package's direct runtime contract visible to installers and tooling.
 
 When a release changes the hostname Unicode target, its documentation describes compatibility with the preceding release line and identifies any known email addresses accepted by that preceding line that become invalid.
 
