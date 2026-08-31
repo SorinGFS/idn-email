@@ -222,9 +222,9 @@ npm install
 npm test
 ```
 
-The package command invokes `node ./#/public/tests`. The generic dispatcher uses Node's built-in `node:test` module, loads the package API once, processes eligible version layers and numbered JSON fixtures deterministically, and requires no external test runner. Every valid fixture must return `true`; every invalid fixture must throw.
+The package command invokes `node ./#/public/tests`. The generic dispatcher uses Node's built-in `node:test` module, loads the package API once, and delegates exact/cumulative layer selection, numbered-fixture traversal, and explicit concern discovery to the `gh-workspace-data v0.5.0` runtime. Every valid fixture must return `true`; every invalid fixture must throw.
 
-Continuous integration runs this suite on Node.js 22.12.0, 24, and 26 across Ubuntu, Windows, and macOS. CI checks out the public test concern and the `gh-workspace-data v0.4.1` version-layer helper explicitly.
+Continuous integration runs this suite on Node.js 22.12.0, 24, and 26 across Ubuntu, Windows, and macOS. CI checks out the public test concern and the `gh-workspace-data v0.5.0` traversal runtime explicitly.
 
 </details>
 
@@ -248,7 +248,7 @@ node ./#/public/benchmarks --quick
 node ./#/public/benchmarks --quick --json
 ```
 
-The portable coordinator records five initial calls, warmed minimum, median, 95th-percentile and maximum latency, and integer operations per second. Durations use milliseconds with six decimal places, and headings include representative arguments. The default workload uses 100,000 iterations per sample. Custom iteration counts require direct invocation, for example `node ./#/public/benchmarks --iterations 250000`.
+The portable coordinator delegates version-layer selection and ordered concern discovery to the `gh-workspace-data v0.5.0` runtime, then records five initial calls, warmed minimum, median, 95th-percentile and maximum latency, and integer operations per second. Durations use milliseconds with six decimal places, and headings include representative arguments. The default workload uses 100,000 iterations per sample. Custom iteration counts require direct invocation, for example `node ./#/public/benchmarks --iterations 250000`.
 
 The five results cover package loading, `isIdnEmail("user@example.com")`, `isIdnEmail("δοκιμή@mañana.example")`, `idnEmail("user@example.com")`, and `idnEmail("δοκιμή@mañana.example")`.
 
