@@ -1,6 +1,6 @@
 {
   "name": "idn-email",
-  "version": "17.0.2",
+  "version": "17.0.3",
   "description": "An RFC 5321 and RFC 6531 internationalized SMTP mailbox address validator",
   "keywords": [
     "idn-email",
