@@ -9,8 +9,17 @@ const dotString = /^(?:[A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]|\P{ASCII})+(?:\.(?:[A-Za-
 // Report a Unicode scalar in a stable form suitable for syntax errors.
 const cpHex = (codePoint) => `char '${String.fromCodePoint(codePoint)}' ${JSON.stringify(`(U+${codePoint.toString(16).toUpperCase().padStart(4, '0')})`)}`;
 
-// Measure the UTF-8 representation used by SMTP octet limits.
-const utf8Length = (value) => Buffer.byteLength(value, 'utf8');
+// Measure the UTF-8 representation used by SMTP octet limits without allocating an encoded copy.
+const utf8Length = (value) => {
+    let length = 0;
+    // Count each well-formed Unicode scalar by its RFC 3629 encoded width.
+    for (let index = 0; index < value.length; index++) {
+        const codePoint = value.codePointAt(index);
+        length += codePoint <= 0x7F ? 1 : codePoint <= 0x7FF ? 2 : codePoint <= 0xFFFF ? 3 : 4;
+        if (codePoint > 0xFFFF) index++;
+    }
+    return length;
+};
 
 // Validate one dotted-decimal IPv4 address without imposing non-RFC leading-zero policy.
 const isIpv4AddressLiteral = (value) => {
