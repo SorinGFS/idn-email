@@ -1,20 +1,22 @@
 /**
- * Validate an idn-email address. Returns true or throws a detailed error.
+ * Validate an RFC 5321/RFC 6531 SMTP mailbox address without changing its spelling.
+ * Returns true or throws a detailed error.
  *
  * @throws {SyntaxError}
  */
-declare function isIdnEmail(email: string): true;
+declare function isIdnEmailAddress(emailAddress: string): true;
 
 /**
- * Returns the ACE hostname based idn-email or throws a detailed error (it also validates the input)
+ * Validate an SMTP mailbox address and return it with a strict U-label domain
+ * converted to ASCII Compatible Encoding. The local part is preserved exactly.
  *
  * @throws {SyntaxError}
  */
-declare function idnEmail(email: string): string;
+declare function idnEmailAddress(emailAddress: string): string;
 
 declare const IdnEmail: {
-  isIdnEmail: typeof isIdnEmail;
-  idnEmail: typeof idnEmail;
+  isIdnEmailAddress: typeof isIdnEmailAddress;
+  idnEmailAddress: typeof idnEmailAddress;
 };
 
 export = IdnEmail;
